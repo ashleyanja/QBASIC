@@ -13,7 +13,8 @@
   * _______Trans(QBASICAccount(s), value) -> this function updates the Transaction summary.
   * 
 **/
-public class 
+
+public class QBasic
 {
 	public static String transactionSummary;
 	public static int accountsFiles[]; 
