@@ -23,8 +23,8 @@ public class QBasic
 	
 	// ---------------------- HELPER FUNCTIONS -------------------------------------------------
 	// Function: getAccount()
-	// Purpose: Asks user for account number and then searches the accountFiles array to find the account information.
-	// Returns: The QBASICAccount Object associated with the account number
+	// Purpose: Asks user for account number and then searches the valid accountFiles array to find it.
+	// Returns: The account number.
 	public static int getAccount()
 	{
 		String accountNumString = getInput("Please enter Account Number: ");
