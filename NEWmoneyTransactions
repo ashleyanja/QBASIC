@@ -1,14 +1,17 @@
-/**
-Helper Functions:
-getAccount() -> Takes user input and returns QBASICAccount
-getvalue() -> Takes user input and returns value to be deposited/withdrawn/transfered
-
-Transaction Functions (deposit, withdraw, transfer):
-_______Call() -> this function executes when user selects _____ transaction. Gets account and value from the helper functions
-and then calls the Trans functions.
-
-_______Trans(QBASICAccount(s), value) -> this function updates the Transaction summary.
-
+/**	
+  * NOTE: This is basically the same as my other OGmoneyTransaction file except I've taken out the _____Action() function that
+  * updated the Bank Account Balances, and I took out account names from transaction summaries.
+  *
+  * Helper Functions:
+  * getAccount() -> Takes user input and returns QBASICAccount
+  * getvalue() -> Takes user input and returns value to be deposited/withdrawn/transfered
+  * 
+  * Transaction Functions (deposit, withdraw, transfer):
+  * _______Call() -> this function executes when user selects _____ transaction. Gets account and value from the helper functions
+  * and then calls the Trans functions.
+  * 
+  * _______Trans(QBASICAccount(s), value) -> this function updates the Transaction summary.
+  * 
 **/
 public class 
 {
