@@ -1,0 +1,260 @@
+/**
+  * BRIEF DESCRIPTION OF FUNCTIONS
+  *
+  * Helper Functions:
+  * getAccount() -> Takes user input and returns QBASICAccount
+  * getvalue() -> Takes user input and returns value to be deposited/withdrawn/transfered
+  *
+  * Transaction Functions (deposit, withdraw, transfer):
+  * _______Call() -> this function executes when user selects said transaction. Gets account and value from the helper functions
+  * and then calls the Action and Trans functions.
+  *
+  * _______Action(QBASICAccount(s), value) -> this function updates the Bank Balance on the said QBASICAccount(s).
+  *
+  * _______Trans(QBASICAccount(s), value) -> this function updates the Transaction summary.
+  *
+**/
+public class QBasic 
+{
+	public static String transactionSummary;
+	public static int accountsFiles[][]; 
+	public static int isAgent;
+	
+	
+	// ----------------------------- HELPER FUNCTIONS -------------------------------------------------
+	// Function: getAccount()
+	// Purpose: Asks user for account number and then searches the accountFiles array to find the account information.
+	// Returns: The QBASICAccount Object associated with the account number
+	public static QBASICAccount getAccount()
+	{
+		String accountNumString = getInput("Please enter Account Number: ");
+		//** Need to check user entered only digits
+		int accountNumVal = Integer.parseInt(accountNumString);
+		int i = binarySearch(accountsFiles, accountNumVal, 0, accountsFiles.length);
+		QBASICAccount userAccount = accountsFiles[i][1];
+		return userAccount; 
+	}
+	
+	// Function: getValue()
+	// Purpose: Asks user for money value and checks they entered a valid amount
+	// Returns: Value entered (if valid)
+	public static int getValue(){
+		String valueString = getInput("Please enter a value:");
+		//**Need to check user only entered digits**
+		int value = Integer.parseInt(valueString);
+		if (isAgent == 1)
+		{
+			if (value > 99999999)
+			{
+				System.out.println("Error: Value entered is too large.");
+			}
+			else if (value < 0)
+			{
+				System.out.println("Error: Can not enter negative value");
+			}
+			else
+			{
+				System.out.println("Transaction Successful");
+				return value;
+			}
+		}
+		else // ATM mode
+		{
+			if (value > 100000)
+			{
+				System.out.println("Error: Value entered is too large.");
+				return -1;
+			}
+			else if (value < 0)
+			{
+				System.out.println("Error: Can not enter negative value");
+				return -1;
+			}
+			else
+			{
+				return value;
+			} 
+		}
+	}
+	// ---------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	
+	
+	// ----------------------------------------- TRANSACTION: DEPOSIT -----------------------------------------------------
+	// Function: depositCall()
+	// Purpose: Function called when user selects deposit transaction. 
+	// No Return
+	public static void depositCall()
+	{
+		QBASICAccount account = getAccount();
+		int value = getValue();
+		if (value < 0) //user entered invalid value
+		{
+			return;
+		}
+		depositAction(account, value); 
+		depositTrans(account, value);
+		System.out.println("Transaction Successful");
+	}
+	
+	// Function: depositAction(userAccount, value)
+	// Purpose: Updates the Bank Balance during a deposit transaction
+	// No Return
+	public static void depositAction(QBASICAccount userAccount, int value)
+	{
+		// Get the current balance and add the values together to get newBalance
+		int currentBalance = userAccount.getAccountBalance();
+		int newBalance = currentBalance + value;
+		// Set the Account Balance to newBalance
+		userAccount.setAccountBalance(newBalance);
+	}
+	
+	// Function: depositTrans(userAccount, value)
+	// Purpose: Writes deposit details to the Transaction Summary
+	// No Return
+	public static void depositTrans(QBASICAccount userAccount, int value)
+	{
+		// Set integers to strings for transactions summary
+				String accountNum = Integer.toString(userAccount.getAccountNumber());
+				String depositVal = Integer.toString(value);
+				String accountName = userAccount.getAccountName();
+				String transSum = "DEP" + " " + accountNum + " " + depositVal + " 0000000 " + accountName;
+				writefile(transactionSummary, transSum);
+	}
+	// ------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	
+	
+	// ----------------------------------------- TRANSACTION: WITHDRAW -----------------------------------------------------
+	// Function: withdrawCall()
+	// Purpose: Function called when user selects withdraw transaction. Checks bank account has sufficient funds.
+	// No Return
+	public static void withdrawCall()
+	{
+		QBASICAccount account = getAccount();
+		int value = getValue();
+		if (value < 0) //user entered invalid value
+		{
+			return;
+		}
+		else if (value > account.getAccountBalance())
+		{
+			System.out.println("Error: You do not have enough funds in your bank.");
+		}
+		else
+		{
+			withdrawAction(account, value); 
+			withdrawTrans(account, value);
+			System.out.println("Transaction Successful");
+		}
+	}
+	
+	// Function: withdrawAction(userAccount, value)
+	// Purpose: Updates the Bank Balance during a withdraw transaction
+	// No Return
+	public static void withdrawAction(QBASICAccount userAccount, int value)
+	{
+		// Get the current balance and add the values together to get newBalance
+		int currentBalance = userAccount.getAccountBalance();
+		int newBalance = currentBalance - value;
+		// Set the Account Balance to newBalance
+		userAccount.setAccountBalance(newBalance);
+	}
+	
+	// Function: withdrawTrans(userAccount, value)
+	// Purpose: Writes withdraw details to the Transaction Summary
+	// No Return
+	public static void withdrawTrans(QBASICAccount userAccount, int value)
+	{
+		// Set integers to strings for transactions summary
+				String accountNum = Integer.toString(userAccount.getAccountNumber());
+				String withdrawVal = Integer.toString(value);
+				String accountName = userAccount.getAccountName();
+				String transSum = "WDR" + " 0000000 " + withdrawVal + " " + accountNum + " " + accountName;
+				writefile(transactionSummary, transSum);
+	}
+	// ------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	
+	
+	// ----------------------------------------- TRANSACTION: TRANSFER -----------------------------------------------------
+	// Function: transferCall()
+	// Purpose: Function called when user selects transfer transaction. Checks from account has sufficient funds.
+	// No Return
+	public static void transferCall()
+	{
+		System.out.println("Withdraw from:");
+		QBASICAccount fromAccount = getAccount();
+		System.out.println("Deposit to:");
+		QBASICAccount toAccount = getAccount();
+		int value = getValue();
+		if (value < 0) //user entered invalid value
+		{
+			return;
+		}
+		else if (value > fromAccount.getAccountBalance())
+		{
+			System.out.println("Error: You do not have enough funds in your bank.");
+		}
+		else
+		{
+			withdrawAction(fromAccount, value); 
+			depositAction(toAccount, value);
+			transferTrans(fromAccount, toAccount, value);
+			System.out.println("Transaction Successful");
+		}
+	}
+	
+	// Function: transferTrans(fromAccount, toAccount, value)
+	// Purpose: Writes transfer details to the Transaction Summary
+	// No Return
+	public static void withdrawTrans(QBASICAccount fromAccount, QBASICAccount toAccount, int value)
+	{
+		// Set integers to strings for transactions summary
+				String fromAccountNum = Integer.toString(fromAccount.getAccountNumber());
+				String toAccountNum = Integer.toString(toAccount.getAccountNumber());
+				String transferVal = Integer.toString(value);
+				String accountName = fromAccount.getAccountName();
+				String transSum = "XFR " + toAccountNum + " " + transferVal + " " + fromAccountNum + " " + accountName;
+				writefile(transactionSummary, transSum);
+	}
+	// ------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	
+	
+	
+	//------------------------- SEARCH FUNCTION ------------------------------------------------------------------------ 
+	// From a website http://www.baeldung.com/java-binary-search
+	public static int binarySearch(
+			  int[][] sortedArray, int key, int low, int high) {
+			    int index = Integer.MAX_VALUE;
+			     
+			    while (low <= high) {
+			        int mid = (low + high) / 2;
+			        if (sortedArray[mid][0] < key) {
+			            low = mid + 1;
+			        } else if (sortedArray[mid][0] > key) {
+			            high = mid - 1;
+			        } else if (sortedArray[mid][0] == key) {
+			            index = mid;
+			            break;
+			        }
+			    }
+			    return index;
+			}
+	// --------------------------------------------------------------------------------------------------------------------
+	
+	public static void main(String[] args) 
+	{
+
+	} // end main
+	
+}
